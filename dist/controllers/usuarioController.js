@@ -28,34 +28,79 @@ const getUsuarioById = (req, res) => __awaiter(void 0, void 0, void 0, function*
     const usuario = yield usuarioModel_1.default.findByPk(id);
     if (!usuario) {
         return res.status(400).json({
-            msg: 'Usuario no existe con el id' + id
+            msg: "Usuario no existe con el id" + id,
         });
     }
     res.json({
         id,
-        usuario
+        usuario,
     });
 });
 exports.getUsuarioById = getUsuarioById;
 // Crear un usuario
-const postUsuario = (req, res) => {
+const postUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
-    res.json({
-        msg: "postUsuario Controller",
-        body,
-    });
-};
+    try {
+        const existeEmail = yield usuarioModel_1.default.findOne({
+            where: {
+                email: body.email,
+            },
+        });
+        if (existeEmail) {
+            return res.status(400).json({
+                msg: "Correo ya registrado",
+            });
+        }
+        // https://sequelize.org/v3/docs/instances/
+        // Consultando la documentación de Sequelize observo que no es posible utilizar el new ( el por eso del error). Lo que recomiendan es utilizar el método "Create" y te ahorras tambien el save.
+        const usuario = yield usuarioModel_1.default.create(body);
+        res.status(201).json({
+            msg: "Usuario creado correctamente",
+            usuario,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: "Por favor comuníquese con el administrador",
+        });
+    }
+});
 exports.postUsuario = postUsuario;
 // Actualizar un usuario
-const putUsuario = (req, res) => {
+const putUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { body } = req;
-    res.json({
-        msg: "putUsuario Controller",
-        id,
-        body,
-    });
-};
+    try {
+        const usuario = yield usuarioModel_1.default.findByPk(id);
+        if (!usuario) {
+            return res.status(404).json({
+                msg: "Usuario no existe con el usuario",
+            });
+        }
+        // const existeEmail = await Usuario.findOne({
+        //   where: {
+        //     email: body.email,
+        //   }
+        // });
+        // if (existeEmail) {
+        //   return res.status(400).json({
+        //     msg: "Correo ya registrado",
+        //   });
+        // }
+        yield (usuario === null || usuario === void 0 ? void 0 : usuario.update(body));
+        res.status(201).json({
+            msg: "Usuario creado correctamente",
+            usuario,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: "Por favor comuníquese con el administrador",
+        });
+    }
+});
 exports.putUsuario = putUsuario;
 // Eliminar (IMPORTANTE: SOLO SE DESHABILITA) usuario
 const deleteUsuario = (req, res) => {
