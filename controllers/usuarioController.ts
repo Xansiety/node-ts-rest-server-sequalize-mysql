@@ -91,8 +91,27 @@ export const putUsuario = async (req: Request, res: Response) => {
 };
 
 // Eliminar (IMPORTANTE: SOLO SE DESHABILITA) usuario
-export const deleteUsuario = (req: Request, res: Response) => {
+export const deleteUsuario = async  (req: Request, res: Response) => {
   const { id } = req.params;
+
+  const usuario= await Usuario.findByPk(id);
+    if(!usuario){
+        return res.status(404).json({
+            msg: "Usuario no existe con el usuario",
+          });
+    }
+
+    // Eliminación física
+    // await usuario.destroy();
+
+    // Eliminación lógica
+    await usuario?.update({estado: false})
+
+    res.status(200).json({
+      msg: "Usuario eliminado correctamente",
+      usuario,
+    });
+
   res.json({
     msg: "deleteUsuario Controller",
     id,

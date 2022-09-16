@@ -103,12 +103,26 @@ const putUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.putUsuario = putUsuario;
 // Eliminar (IMPORTANTE: SOLO SE DESHABILITA) usuario
-const deleteUsuario = (req, res) => {
+const deleteUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
+    const usuario = yield usuarioModel_1.default.findByPk(id);
+    if (!usuario) {
+        return res.status(404).json({
+            msg: "Usuario no existe con el usuario",
+        });
+    }
+    // Eliminación física
+    // await usuario.destroy();
+    // Eliminación lógica
+    yield (usuario === null || usuario === void 0 ? void 0 : usuario.update({ estado: false }));
+    res.status(200).json({
+        msg: "Usuario eliminado correctamente",
+        usuario,
+    });
     res.json({
         msg: "deleteUsuario Controller",
         id,
     });
-};
+});
 exports.deleteUsuario = deleteUsuario;
 //# sourceMappingURL=usuarioController.js.map
